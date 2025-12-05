@@ -1,39 +1,15 @@
-<?php
+    <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\LoginController;
+    use Illuminate\Http\Request;
+    use Illuminate\Support\Facades\Route;
+    use App\Http\Controllers\Auth\RegisterController;
+    use App\Http\Controllers\Auth\LoginController;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
-*/
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-
-Route::post('/register', [RegisterController::class, 'register']);
-Route::post('/login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout'])
-     ->middleware('auth:sanctum'); // only logged-in users can log out
-
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return response()->json([
-        'user' => [
-            'id' => $request->user()->id,
-            'name' => $request->user()->name,
-            'email' => $request->user()->email,
-            'role' => $request->user()->role->name,
-        ]
-    ]);
     
-});
+    
+
+    Route::post('/register', [RegisterController::class, 'register']);
+    Route::post('/login', [LoginController::class, 'login']);
+    Route::middleware('auth:sanctum')->post('/logout', [LoginController::class, 'logout']);
+
+ 

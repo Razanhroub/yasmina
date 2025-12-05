@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'http://localhost:8000/api', // make sure to include /api if your routes are in api.php
-  // withCredentials: true, // remove this for token auth
+  
 });
 
 // Add token automatically to all requests

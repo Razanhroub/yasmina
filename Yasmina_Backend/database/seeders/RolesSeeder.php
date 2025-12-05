@@ -17,8 +17,8 @@ class RolesSeeder extends Seeder
         DB::table('roles')->truncate(); //making sure to delete any old data in the table
 
         //adding the main three roles so we can assign them to the role id table
-        Role::create(['id' => 1, 'name' => 'admin',   'guard_name' => 'web']);
-        Role::create(['id' => 2, 'name' => 'teacher', 'guard_name' => 'web']);
-        Role::create(['id' => 3, 'name' => 'student', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'teacher']);
+        Role::firstOrCreate(['name' => 'student']);
     }
 }

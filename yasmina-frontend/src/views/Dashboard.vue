@@ -1,57 +1,44 @@
 <template>
-  <div>
-    <Header :user="user" />
-    <div class="container">
-      <h2>Dashboard</h2>
-      <div v-if="user">
-        <div v-if="user.role === 'admin'">
-          <h3>Admin Panel</h3>
-          <p>Manage all users, classrooms, and students.</p>
-        </div>
-        <div v-else-if="user.role === 'teacher'">
-          <h3>Teacher Panel</h3>
-          <p>View and manage your own classrooms and students.</p>
-        </div>
-        <div v-else-if="user.role === 'student'">
-          <h3>Student Panel</h3>
-          <p>View your assigned classroom and update your profile.</p>
-        </div>
-      </div>
-      <p v-else>Loading user info...</p>
-    </div>
-  </div>
+  
 </template>
 
 <script>
-import Header from '../components/Header.vue';
 import { ref, onMounted } from 'vue';
-import api from '../axios';
 import router from '../router';
+import Header from '../components/Header.vue';
 
 export default {
-  components: { Header },
+  components: {
+    Header,
+  },
   setup() {
     const user = ref(null);
 
-    onMounted(async () => {
+    onMounted(() => {
+      const storedUser = localStorage.getItem('user');
       const token = localStorage.getItem('token');
-      if (!token) {
+
+      if (!token || !storedUser) {
         router.push('/login');
         return;
       }
 
-      try {
-        const res = await api.get('/user', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        user.value = res.data.user;
-      } catch (err) {
-        localStorage.removeItem('token');
-        router.push('/login');
+      const parsedUser = JSON.parse(storedUser);
+      user.value = parsedUser;
+
+      // Redirect based on role
+      if (router.currentRoute.value.path === '/dashboard') {
+        if (parsedUser.role === 'admin') {
+          router.replace('/dashboard/admin');
+        } else if (parsedUser.role === 'teacher') {
+          router.replace('/dashboard/teacher');
+        } else if (parsedUser.role === 'student') {
+          router.replace('/dashboard/student');
+        }
       }
     });
 
     return { user };
-  }
+  },
 };
 </script>

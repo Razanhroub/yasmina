@@ -37,25 +37,22 @@ class LoginController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'User logged in successfully.',
-            'token' => $token, // <-- frontend will save this
-           'user' => [
+            'token' => $token, 
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'role' => $user->role->name, // <-- just the role name
-                    ]
-   
+            'role' => $user->getRoleNames()->first(), // gets Spatie role
         ], 200);
     }
 
-    public function logout(Request $request): JsonResponse
-    {
-        // Revoke current token
-        $request->user()->currentAccessToken()->delete();
+        public function logout(Request $request): JsonResponse
+        {
+            // Revoke current token
+            $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'User logged out successfully.',
-        ], 200);
-    }
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User logged out successfully.',
+            ], 200);
+        }
 }

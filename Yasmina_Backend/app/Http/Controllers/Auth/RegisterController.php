@@ -16,20 +16,17 @@ class RegisterController extends Controller
         // Get validated data
         $data = $request->validated();
 
-        // Create user with default role_id = 3 (student)
         $user = User::create([
-            'name' => $data['name'],
-            'email' => $data['email'],
-            'password' => Hash::make($data['password']),
-            'role_id' => Role::where('name', 'student')->first()->id,
-        ]);
+        'name' => $data['name'],
+        'email' => $data['email'],
+        'password' => Hash::make($data['password']),
+    ]);
 
-        // Assign Spatie role
-        $user->assignRole('student');
+    // Assign default role
+    $user->assignRole('student');
 
        
 
-        // Return user and token
         return response()->json([
         'status' => 'success',
         'message' => 'User registered successfully. Please login to continue.'

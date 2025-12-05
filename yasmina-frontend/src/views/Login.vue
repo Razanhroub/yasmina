@@ -57,10 +57,15 @@ export default {
           password: this.password
         });
 
-        // Save token in localStorage for future requests
         localStorage.setItem('token', res.data.token);
-        localStorage.setItem('token_expiry', new Date().getTime() + 24 * 60 * 60 * 1000); // 2 minutes
-        // localStorage.setItem('token_expiry', new Date().getTime() + 2 * 60 * 1000); // 2 minutes
+
+        
+        localStorage.setItem('user', JSON.stringify({
+          id: res.data.id,
+          name: res.data.name,
+          email: res.data.email,
+          role: res.data.role
+        }));
 
         // Show success message
         this.message = res.data.message;
