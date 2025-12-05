@@ -23,8 +23,7 @@ class Classroom extends Model
      */
     public function teacher()
     {
-        return $this->belongsTo(User::class, 'teacher_id')
-                    ->where('role_id', 2); // safety check
+       return $this->belongsTo(User::class, 'teacher_id');
     }
 
     /**

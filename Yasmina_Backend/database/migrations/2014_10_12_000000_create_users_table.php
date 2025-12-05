@@ -18,9 +18,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->foreignId('role_id')
-            ->default(3)
-            ->constrained('roles')//setting deafult role as student
-            ->cascadeOnDelete();
+                    ->default(3)           // default student role
+                    ->constrained('roles')
+                    ->nullOnDelete();      // safe if someone deletes a role
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

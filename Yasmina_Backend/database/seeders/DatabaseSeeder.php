@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('Raz_2001'),
             'role_id' => $adminRole->id,
         ])->assignRole('admin');
+        
          // Create Teacher user
         $teacherRole = Role::where('name', 'teacher')->first();
         $teacher = User::factory()->create([

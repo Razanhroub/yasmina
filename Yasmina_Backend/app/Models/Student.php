@@ -19,6 +19,11 @@ class Student extends Model
         'birth_of_date',
         'country',
     ];
+    
+    protected $casts = [
+    'birth_of_date' => 'date', // or 'date_of_birth' => 'date' if you rename
+    ];
+
 
     /**
      * Relation: student belongs to a user

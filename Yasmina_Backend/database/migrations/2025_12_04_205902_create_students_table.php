@@ -23,10 +23,12 @@ return new class extends Migration
             $table->foreignId('class_id')
                 ->nullable()
                 ->constrained('classrooms')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
 
             $table->date('birth_of_date')->nullable();
             $table->string('country')->nullable();
+            $table->unique('student_id'); // ensure one student profile per user
+            $table->index('class_id');
 
             $table->timestamps();
             $table->softDeletes();

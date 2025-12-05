@@ -27,6 +27,9 @@ class LoginController extends Controller
 
         // Login using Sanctum (cookie-based)
         Auth::login($user);
+        // // Regenerate session for security
+        // $request->session()->regenerate();
+
 
         return response()->json([
             'status' => 'success',
@@ -39,20 +42,24 @@ class LoginController extends Controller
             ]
         ], 200);
     }
-     public function logout(): JsonResponse
+     
+    public function logout(Request $request): JsonResponse
     {
-        // Logout the user (destroy session)
+        // Logout user
         Auth::logout();
 
-        // Invalidate session cookie
-        request()->session()->invalidate();
-        request()->session()->regenerateToken();
+        // Destroy session
+        $request->session()->invalidate();
+
+        // Generate new CSRF token for next requests
+        $request->session()->regenerateToken();
 
         return response()->json([
             'status' => 'success',
-            'message' => 'User logged out successfully.'
+            'message' => 'User logged out successfully.',
         ], 200);
     }
+
 
     
     

@@ -22,7 +22,7 @@ return new class extends Migration
             ->nullable()           
             ->constrained('users')
             ->cascadeOnDelete();
-
+            $table->index('teacher_id');
             $table->timestamps();
             $table->softDeletes();
         });
