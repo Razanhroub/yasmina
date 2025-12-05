@@ -27,6 +27,7 @@ export default {
           },
         });
         localStorage.removeItem('token');
+        localStorage.removeItem('token_expiry');
         router.push('/login');
       } catch (err) {
         console.log(err);
