@@ -27,10 +27,13 @@ class RegisterController extends Controller
         // Assign Spatie role
         $user->assignRole('student');
 
+       
+
+        // Return user and token
         return response()->json([
-            'status' => 'success',
-            'message' => 'User registered successfully. Please login to continue.',
-            'user' => $user
-        ], 201);
+        'status' => 'success',
+        'message' => 'User registered successfully. Please login to continue.'
+], 201);
+
     }
 }

@@ -1,9 +1,7 @@
 <?php
-
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use App\Http\Requests\LoginRequest;
@@ -25,42 +23,34 @@ class LoginController extends Controller
             ], 401);
         }
 
-        // Login using Sanctum (cookie-based)
-        Auth::login($user);
-        // // Regenerate session for security
-        // $request->session()->regenerate();
+        // Create Sanctum tokena
+        $tokenResult = $user->createToken('frontend-token', [], now()->addDays(1));
+        // $tokenResult = $user->createToken('frontend-token', [], now()->addMinutes(2));
+        $token = $tokenResult->plainTextToken;
 
 
         return response()->json([
             'status' => 'success',
             'message' => 'User logged in successfully.',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role->name,
-            ]
+            'token' => $token, // <-- frontend will save this
+           'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role->name, // <-- just the role name
+                    ]
+   
         ], 200);
     }
-     
+
     public function logout(Request $request): JsonResponse
     {
-        // Logout user
-        Auth::logout();
-
-        // Destroy session
-        $request->session()->invalidate();
-
-        // Generate new CSRF token for next requests
-        $request->session()->regenerateToken();
+        // Revoke current token
+        $request->user()->currentAccessToken()->delete();
 
         return response()->json([
             'status' => 'success',
             'message' => 'User logged out successfully.',
         ], 200);
     }
-
-
-    
-    
 }
