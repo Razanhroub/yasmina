@@ -24,9 +24,14 @@ class LoginController extends Controller
         }
 
         // Create Sanctum tokena
-        $tokenResult = $user->createToken('frontend-token', [], now()->addDays(1));
-        // $tokenResult = $user->createToken('frontend-token', [], now()->addMinutes(2));
+        $tokenResult = $user->createToken('frontend-token');
         $token = $tokenResult->plainTextToken;
+
+        // Add expiration manually
+        $user->tokens()->latest('id')->first()->update([
+            'expires_at' => now()->addDay(),
+        ]);
+
 
 
         return response()->json([
