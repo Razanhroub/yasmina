@@ -1,14 +1,47 @@
 <template>
-  <div>
-    <h3>Student Panel</h3>
-    <p>View your assigned classroom and update your profile.</p>
-    <ul>
-      <li><router-link to="/student/profile">My Profile</router-link></li>
-      <li><router-link to="/student/classroom">My Classroom</router-link></li>
-    </ul>
+  <div class="student-dashboard">
+    <h2>Student Dashboard</h2>
+
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons">
+      <button @click="currentView = 'profile'">My Profile</button>
+    </div>
+
+    <!-- Render Components -->
+    <div class="student-content">
+      <Profile v-if="currentView === 'profile'" />
+      <MyClassroom v-else-if="currentView === 'classroom'" />
+    </div>
   </div>
 </template>
 
-<script setup>
-// Add logic for fetching student info later
+<script>
+import Profile from './Profile.vue';
+import MyClassroom from './MyClassroom.vue';
+
+export default {
+  name: "StudentDashboard",
+  components: { Profile, MyClassroom },
+  data() {
+    return {
+      currentView: 'profile' // default view
+    };
+  }
+};
 </script>
+
+<style scoped>
+.student-dashboard {
+  padding: 20px;
+}
+
+.nav-buttons button {
+  margin-right: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.student-content {
+  margin-top: 20px;
+}
+</style>

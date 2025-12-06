@@ -25,9 +25,7 @@ class StudentPolicy
      */
     public function viewAny(User $user)
     {
-        if ($user->hasRole('teacher')) {
-            return true; // teacher can view their own students (filtered in controller)
-        }
+        return $user->hasRole('admin') || $user->hasRole('teacher');
 
         return false; // students cannot view other students
     }

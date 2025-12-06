@@ -31,5 +31,29 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+    public function student()
+    {
+        return $this->hasOne(Student::class, 'student_id'); // links to student_id in students table
+    }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
-}   
+
+    public function classroomForStudent()
+    {
+        return $this->hasOneThrough(
+            Classroom::class,
+            Student::class,
+            'student_id', // Foreign key on Student table...
+            'id',         // Foreign key on Classroom table...
+            'id',         // Local key on User table
+            'class_id'    // Local key on Student table
+        );
+    }
+    public function classrooms()
+    {
+        return $this->hasMany(Classroom::class, 'teacher_id'); // teacher -> classrooms
+    }
+}

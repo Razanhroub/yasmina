@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Classroom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -17,37 +18,55 @@ class TeacherController extends Controller
     // /**
     //  * Display a listing of teachers
     //  */
-    public function index()
-    {
-        $teachers = User::role('teacher')->get(['id', 'name']); 
-        return response()->json($teachers);
+   public function index()
+{
+    $teachers = User::role('teacher')
+        ->with('classrooms:id,name,teacher_id') // eager load classrooms
+        ->get(['id', 'name', 'email']); // include teacher info
+
+    return response()->json($teachers);
+}
+
+
+
+    /**
+     * Store a new teacher
+     */
+
+public function store(Request $request)
+{
+    $this->authorize('create', User::class);
+
+    $data = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email',
+        'password' => 'required|string|min:6|confirmed',
+        'class_names' => 'nullable|array', // array of new classroom names
+        'class_names.*' => 'string|max:255',
+    ]);
+
+    // Create teacher user
+    $teacher = User::create([
+        'name' => $data['name'],
+        'email' => $data['email'],
+        'password' => Hash::make($data['password']),
+    ]);
+
+    $teacher->assignRole('teacher');
+
+    // Create new classrooms for this teacher
+    if (!empty($data['class_names'])) {
+        foreach ($data['class_names'] as $className) {
+            Classroom::create([
+                'name' => $className,
+                'teacher_id' => $teacher->id,
+            ]);
+        }
     }
 
+    return response()->json($teacher->load('classrooms'), 201);
+}
 
-    // /**
-    //  * Store a new teacher
-    //  */
-    // public function store(Request $request)
-    // {
-    //     $this->authorize('create', User::class);
-
-    //     $data = $request->validate([
-    //         'name' => 'required|string|max:255',
-    //         'email' => 'required|email|unique:users,email',
-    //         'password' => 'required|string|min:6',
-    //     ]);
-
-    //     $teacher = User::create([
-    //         'name' => $data['name'],
-    //         'email' => $data['email'],
-    //         'password' => Hash::make($data['password']),
-    //         'role_id' => 2, // teacher role id
-    //     ]);
-
-    //     $teacher->assignRole('teacher');
-
-    //     return response()->json($teacher, 201);
-    // }
 
     // /**
     //  * Show a specific teacher
@@ -61,42 +80,59 @@ class TeacherController extends Controller
     // /**
     //  * Update a teacher
     //  */
-    // public function update(Request $request, User $teacher)
-    // {
-    //     $this->authorize('update', $teacher);
+ public function update(Request $request, User $teacher)
+{
+    $this->authorize('update', $teacher);
 
-    //     $data = $request->validate([
-    //         'name' => 'sometimes|string|max:255',
-    //         'email' => 'sometimes|email|unique:users,email,' . $teacher->id,
-    //         'password' => 'nullable|string|min:6',
-    //     ]);
+    $data = $request->validate([
+        'name' => 'sometimes|string|max:255',
+        'email' => 'sometimes|email|unique:users,email,' . $teacher->id,
+        'password' => 'nullable|string|min:6|confirmed', // password confirmation
+        'class_id' => 'nullable|exists:classrooms,id', // only one class assignable
+    ]);
 
-    //     if (!empty($data['password'])) {
-    //         $data['password'] = Hash::make($data['password']);
-    //     } else {
-    //         unset($data['password']);
-    //     }
+    // Handle password hashing
+    if (!empty($data['password'])) {
+        $data['password'] = Hash::make($data['password']);
+    } else {
+        unset($data['password']);
+    }
 
-    //     $teacher->update($data);
+    $teacher->update($data);
 
-    //     return response()->json($teacher);
-    // }
+    // Assign new class if provided
+    if (!empty($data['class_id'])) {
+        // Ensure the classroom is unassigned
+        $classroom = Classroom::where('id', $data['class_id'])
+            ->whereNull('teacher_id')
+            ->first();
 
-    // /**
-    //  * Delete a teacher (soft delete)
-    //  */
-    // public function destroy(User $teacher)
-    // {
-    //     $this->authorize('delete', $teacher);
+        if ($classroom) {
+            $classroom->teacher_id = $teacher->id;
+            $classroom->save();
+        }
+    }
 
-    //     // Optional: unassign classrooms or handle cascading logic
-    //     foreach ($teacher->classrooms as $classroom) {
-    //         $classroom->teacher_id = null;
-    //         $classroom->save();
-    //     }
+    return response()->json($teacher->load('classrooms'));
+}
 
-    //     $teacher->delete();
+    /**
+     * Delete a teacher (soft delete)
+     */
+    public function destroy(User $teacher)
+    {
+        $this->authorize('delete', $teacher);
 
-    //     return response()->json(['message' => 'Teacher deleted successfully.']);
-    // }
+        // Unassign all classrooms assigned to this teacher
+        foreach ($teacher->classrooms as $classroom) {
+            $classroom->teacher_id = null;
+            $classroom->save();
+        }
+
+        // Delete the teacher
+        $teacher->delete();
+
+        return response()->json(['message' => 'Teacher deleted successfully.']);
+    }
+
 }

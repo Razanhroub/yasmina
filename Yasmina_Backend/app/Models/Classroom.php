@@ -18,9 +18,7 @@ class Classroom extends Model
         'description',
         'teacher_id',
     ];
-     /**
-     * Relation: classroom belongs to a teacher (user with role_id = 2)
-     */
+    
     public function teacher()
     {
        return $this->belongsTo(User::class, 'teacher_id');
