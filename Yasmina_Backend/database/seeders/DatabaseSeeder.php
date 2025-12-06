@@ -24,15 +24,14 @@ class DatabaseSeeder extends Seeder
 
         User::factory()->create([
             'name' => 'Super Admin',
-            'email' => 'razan.b.alhroub@gmail.com',
+            'email' => 'razanse.b.alhroub@gmail.com',
             'password' => Hash::make('Raz_2001'),
-        ])->assignRole('admin');
-        
+        ])->assignRole('admin'); 
          // Create Teacher user
         $teacherRole = Role::where('name', 'teacher')->first();
         $teacher = User::factory()->create([
             'name' => 'John Teacher',
-            'email' => 'teacher@example.com',
+            'email' => 'teachers@example.com',
             'password' => Hash::make('password'),
         ])->assignRole('teacher');
 
@@ -48,14 +47,14 @@ class DatabaseSeeder extends Seeder
 
         $student1 = User::factory()->create([
             'name' => 'Student One',
-            'email' => 'student1@example.com',
+            'email' => 'studenst1@example.com',
             'password' => Hash::make('password'),
 
         ])->assignRole('student');
 
         $student2 = User::factory()->create([
             'name' => 'Student Two',
-            'email' => 'student2@example.com',
+            'email' => 'students2@example.com',
             'password' => Hash::make('password'),
         ])->assignRole('student');
 

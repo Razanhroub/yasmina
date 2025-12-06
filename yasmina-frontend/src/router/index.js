@@ -2,34 +2,29 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import Dashboard from '../views/Dashboard.vue';
+
+// Admin components
 import AdminDashboard from '../views/dashboard/admin/AdminDashboard.vue';
+// Teacher components
 import TeacherDashboard from '../views/dashboard/teacher/TeacherDashboard.vue';
+// Student components
 import StudentDashboard from '../views/dashboard/student/StudentDashboard.vue';
-
-
 
 const routes = [
   { path: '/', redirect: '/register' },
   { path: '/login', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register },
-  { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
- {
-  path: '/dashboard/admin',
-  component: AdminDashboard,
-  meta: { requiresAuth: true, role: 'admin' }
-},
-{
-  path: '/dashboard/teacher',
-  component: TeacherDashboard,
-  meta: { requiresAuth: true, role: 'teacher' }
-},
-{
-  path: '/dashboard/student',
-  component: StudentDashboard,
-  meta: { requiresAuth: true, role: 'student' }
-}
 
-
+  {
+    path: '/dashboard',
+    component: Dashboard,
+    meta: { requiresAuth: true },
+    children: [
+      { path: 'admin', component: AdminDashboard, meta: { role: 'admin' } },
+      { path: 'teacher', component: TeacherDashboard, meta: { role: 'teacher' } },
+      { path: 'student', component: StudentDashboard, meta: { role: 'student' } },
+    ]
+  },
 ];
 
 const router = createRouter({
@@ -39,18 +34,34 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
+  const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
-  // If logged in, prevent going to login/register
-  if (token && (to.name === 'Login' || to.name === 'Register')) {
-    return next('/dashboard');
-  }
-
-  // If not logged in, protect routes with requiresAuth meta
+  // Not logged in, redirect to login if route requires auth
   if (!token && to.meta.requiresAuth) {
     return next('/login');
   }
 
-  next(); // allow access
+  // Already logged in, prevent accessing login/register
+  if (token && (to.name === 'Login' || to.name === 'Register')) {
+    return next('/dashboard');
+  }
+
+  // Protect routes by role
+  if (to.meta.role && user?.role !== to.meta.role) {
+    // Redirect to their own dashboard instead of empty page
+    if (user.role === 'admin') return next('/dashboard/admin');
+    if (user.role === 'teacher') return next('/dashboard/teacher');
+    if (user.role === 'student') return next('/dashboard/student');
+  }
+
+  // Redirect /dashboard to correct role
+  if (token && to.path === '/dashboard') {
+    if (user.role === 'admin') return next('/dashboard/admin');
+    if (user.role === 'teacher') return next('/dashboard/teacher');
+    if (user.role === 'student') return next('/dashboard/student');
+  }
+
+  next();
 });
 
 export default router;

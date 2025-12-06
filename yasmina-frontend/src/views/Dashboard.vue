@@ -1,44 +1,43 @@
 <template>
-  
+  <div>
+    <!-- Common Header -->
+    <Header :user="user" />
+
+    <!-- Dashboard content -->
+    <div class="container">
+      <h2>Dashboard</h2>
+
+      <div v-if="user">
+        <!-- Render the correct dashboard based on the route -->
+        <router-view />
+      </div>
+
+      <p v-else>Loading user info...</p>
+    </div>
+  </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
-import router from '../router';
 import Header from '../components/Header.vue';
 
 export default {
-  components: {
-    Header,
+  components: { Header },
+  data() {
+    return {
+      user: null
+    };
   },
-  setup() {
-    const user = ref(null);
-
-    onMounted(() => {
-      const storedUser = localStorage.getItem('user');
-      const token = localStorage.getItem('token');
-
-      if (!token || !storedUser) {
-        router.push('/login');
-        return;
-      }
-
-      const parsedUser = JSON.parse(storedUser);
-      user.value = parsedUser;
-
-      // Redirect based on role
-      if (router.currentRoute.value.path === '/dashboard') {
-        if (parsedUser.role === 'admin') {
-          router.replace('/dashboard/admin');
-        } else if (parsedUser.role === 'teacher') {
-          router.replace('/dashboard/teacher');
-        } else if (parsedUser.role === 'student') {
-          router.replace('/dashboard/student');
-        }
-      }
-    });
-
-    return { user };
-  },
+  created() {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      this.user = JSON.parse(storedUser);
+    }
+  }
 };
 </script>
+
+<style scoped>
+.container {
+  margin-top: 20px;
+}
+</style>

@@ -8,20 +8,21 @@ use Illuminate\Support\Facades\Hash;
 
 class TeacherController extends Controller
 {
-    // public function __construct()
-    // {
-    //     // Apply policy automatically
-    //     $this->authorizeResource(User::class, 'teacher');
-    // }
+    public function __construct()
+    {
+        // Apply policy automatically
+        $this->authorizeResource(User::class, 'teacher');
+    }
 
     // /**
     //  * Display a listing of teachers
     //  */
-    // public function index()
-    // {
-    //     $teachers = User::role('teacher')->with('classrooms')->get();
-    //     return response()->json($teachers);
-    // }
+    public function index()
+    {
+        $teachers = User::role('teacher')->get(['id', 'name']); 
+        return response()->json($teachers);
+    }
+
 
     // /**
     //  * Store a new teacher

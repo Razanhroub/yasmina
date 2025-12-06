@@ -1,8 +1,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api', // make sure to include /api if your routes are in api.php
-  
+  baseURL: 'http://localhost:8000/api', // your backend URL
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
 
 // Add token automatically to all requests
