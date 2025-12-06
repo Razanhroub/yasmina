@@ -19,7 +19,7 @@ use App\Http\Controllers\TeacherController;
 
 
 
-    Route::middleware(['auth:sanctum', 'role:admin'])
+    Route::middleware(['auth:sanctum', 'role:admin','token.expired'])
         ->prefix('admin')
         ->group(function () {
             // Classrooms
@@ -44,7 +44,7 @@ use App\Http\Controllers\TeacherController;
             Route::put('teachers/{teacher}', [TeacherController::class, 'update']);
             Route::delete('teachers/{teacher}', [TeacherController::class, 'destroy']);
     });
-    Route::middleware(['auth:sanctum', 'role:student'])
+    Route::middleware(['auth:sanctum', 'role:student', 'token.expired'])
         ->prefix('student')
         ->group(function () {
 

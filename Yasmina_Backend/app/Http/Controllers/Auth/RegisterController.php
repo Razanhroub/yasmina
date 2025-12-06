@@ -24,13 +24,26 @@ class RegisterController extends Controller
 
     // Assign default role
     $user->assignRole('student');
+    // Create Sanctum tokena
+        $tokenResult = $user->createToken('frontend-token');
+        $token = $tokenResult->plainTextToken;
+
+        // Add expiration manually
+        $user->tokens()->latest('id')->first()->update([
+            'expires_at' => now()->addDay(),
+        ]);
 
        
 
-        return response()->json([
-        'status' => 'success',
-        'message' => 'User registered successfully. Please login to continue.'
-], 201);
+    return response()->json([
+            'status' => 'success',
+            'message' => 'User logged in successfully.',
+            'token' => $token, 
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->getRoleNames()->first(), // gets Spatie role
+        ], 201);
 
     }
 }

@@ -33,19 +33,19 @@
       
       <button type="submit" class="btn">Register</button>
     </form>
-    <!-- Already have account link -->
-    <p class="login-link">
+
+    <!-- Success / Error Message -->
+    <p v-if="message" :class="{'message': success, 'error-msg': !success}">{{ message }}</p>
+     <p class="login-link">
       Already have an account? 
       <button @click="$router.push('/login')" class="btn-link">Login</button>
     </p>
-
-    <!-- Success Message -->
-    <p v-if="message" class="message">{{ message }}</p>
   </div>
 </template>
 
 <script>
 import api from '../axios';
+import router from '../router';
 
 export default {
   data() {
@@ -55,16 +55,19 @@ export default {
       password: '',
       password_confirmation: '',
       message: '',
+      success: false,
       errors: {} // store validation errors here
     };
   },
   methods: {
     async register() {
-      // Reset previous errors and message
+      // Reset errors and messages
       this.errors = {};
       this.message = '';
+      this.success = false;
 
       try {
+        // Send registration request
         const res = await api.post('/register', {
           name: this.name,
           email: this.email,
@@ -72,11 +75,21 @@ export default {
           password_confirmation: this.password_confirmation
         });
 
+        // Store token and user info in localStorage (auto-login)
+        localStorage.setItem('token', res.data.token);
+        localStorage.setItem('user', JSON.stringify({
+          id: res.data.id,
+          name: res.data.name,
+          email: res.data.email,
+          role: res.data.role
+        }));
+
         // Show success message
         this.message = res.data.message;
+        this.success = true;
 
-        // Optionally, redirect to login page
-        this.$router.push('/login');
+        // Redirect directly to dashboard
+        await router.push('/dashboard');
 
       } catch (err) {
         // Laravel validation errors
@@ -84,6 +97,7 @@ export default {
           this.errors = err.response.data.errors;
         } else {
           this.message = err.response?.data?.message || 'Registration failed';
+          this.success = false;
         }
       }
     }

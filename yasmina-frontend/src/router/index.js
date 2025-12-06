@@ -2,29 +2,29 @@ import { createRouter, createWebHistory } from 'vue-router';
 import Login from '../views/Login.vue';
 import Register from '../views/Register.vue';
 import Dashboard from '../views/Dashboard.vue';
-
-// Admin components
 import AdminDashboard from '../views/dashboard/admin/AdminDashboard.vue';
-// Teacher components
 import TeacherDashboard from '../views/dashboard/teacher/TeacherDashboard.vue';
-// Student components
 import StudentDashboard from '../views/dashboard/student/StudentDashboard.vue';
+import NotFound from '../views/NotFound.vue';
+
 
 const routes = [
-  { path: '/', redirect: '/register' },
+  { path: '/', redirect: '/login' },
   { path: '/login', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register },
 
-  {
-    path: '/dashboard',
-    component: Dashboard,
-    meta: { requiresAuth: true },
-    children: [
-      { path: 'admin', component: AdminDashboard, meta: { role: 'admin' } },
-      { path: 'teacher', component: TeacherDashboard, meta: { role: 'teacher' } },
-      { path: 'student', component: StudentDashboard, meta: { role: 'student' } },
-    ]
-  },
+{
+  path: '/dashboard',
+  component: Dashboard,
+  meta: { requiresAuth: true },
+  children: [
+    { path: 'admin', component: AdminDashboard, meta: { role: 'admin' } },
+    { path: 'teacher', component: TeacherDashboard, meta: { role: 'teacher' } },
+    { path: 'student', component: StudentDashboard, meta: { role: 'student' } },
+    
+    { path: ':pathMatch(.*)*', component: NotFound }
+  ]
+},
 ];
 
 const router = createRouter({
