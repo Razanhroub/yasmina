@@ -252,5 +252,31 @@ class StudentController extends Controller
         ]);
     }
 
+      public function assignClassroom(Request $request, $userId)
+{
+    $student = Student::where('student_id', $userId)->firstOrFail();
+        $this->authorize('update', $student); // policy check
+        
+        $request->validate([
+            'class_id' => 'required|exists:classrooms,id',
+        ]);
+
+        $classroom = Classroom::findOrFail($request->class_id);
+
+        // Assign student to classroom
+        $student->class_id = $classroom->id;
+        $student->save();
+
+        return response()->json([
+            'status' => 200,
+            'message' => "Student assigned to classroom {$classroom->name} successfully",
+            'data' => [
+                'student_id' => $student->id,
+                'classroom_id' => $classroom->id,
+                'classroom_name' => $classroom->name
+            ]
+        ]);
+    }
+
 
 }

@@ -26,6 +26,7 @@
           <td>
             <button @click="toggleRole(student)">Change to admin</button>
             <button @click="deleteStudent(student)">Delete</button>
+            <button class="assign-btn" @click="openAssignModal">Assign to Classroom</button>
 
 
 
@@ -42,6 +43,7 @@
 import { ref, onMounted } from 'vue';
 import api from '../../../../axios.js';
 import CreateStudent from './CreateStudent.vue';
+import AssignClassroom from './AssignClassroom.vue';
 import Swal from 'sweetalert2';
 
 const students = ref([]);
