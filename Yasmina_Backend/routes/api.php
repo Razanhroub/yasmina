@@ -31,7 +31,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])
     // Students
     Route::get('students', [StudentController::class, 'index']);
     Route::post('students', [StudentController::class, 'store']);
-    Route::delete('students/user/{userId}', [StudentController::class, 'destroyByUser']);
+    Route::delete('students/{userId}', [StudentController::class, 'destroyByUser']);
     Route::put('users/{user}/toggle-role', [StudentController::class, 'toggleRole']);
 
 

@@ -24,7 +24,7 @@
           <td>Student</td>
           <td>{{ student.student?.classroom?.name || '-' }}</td>
           <td>
-            <button @click="toggleRole(student)">Toggle Role</button>
+            <button @click="toggleRole(student)">Change to admin</button>
             <button @click="deleteStudent(student)">Delete</button>
 
 
