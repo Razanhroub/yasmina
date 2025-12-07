@@ -116,18 +116,24 @@ export default {
     toggleCreateForm(classroomId) {
       this.createFormId = this.createFormId === classroomId ? null : classroomId;
     },
-    handleStudentCreated(newStudent) {
+    async handleStudentCreated(newStudent) {
       this.createFormId = null;
       
-      // Update the specific classroom without refetching all
-      const classroom = this.classrooms.find(c => c.id === newStudent.class_id);
-      if (classroom) {
-        if (!classroom.students) {
-          classroom.students = [];
+      // Safer: refetch just the updated classroom to ensure data consistency
+      try {
+        const res = await api.get(`/teacher/classrooms/${newStudent.class_id}`);
+        const index = this.classrooms.findIndex(c => c.id === newStudent.class_id);
+        if (index !== -1) {
+          // Replace the specific classroom with fresh data
+          this.classrooms.splice(index, 1, { 
+            ...res.data, 
+            students: res.data.students || [] 
+          });
         }
-        classroom.students.push(newStudent);
-        // Trigger reactivity
-        this.classrooms = [...this.classrooms];
+      } catch (err) {
+        console.error('Error refetching classroom:', err);
+        // Fallback: full refetch only if single classroom fetch fails
+        this.fetchClassrooms();
       }
     },
     handleStudentDeleted(deletedId) {
