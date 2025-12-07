@@ -24,18 +24,23 @@
           <td>Student</td>
           <td>{{ student.student?.classroom?.name || '-' }}</td>
           <td>
-            <button @click="toggleRole(student)">Change to admin</button>
+            <!-- Buttons per student -->
+            <button @click="toggleRole(student)">Change to teacher</button>
             <button @click="deleteStudent(student)">Delete</button>
-            <button class="assign-btn" @click="openAssignModal">Assign to Classroom</button>
-
-
-
+            <button @click="openAssignModal(student.id)">Assign Classroom</button>
           </td>
         </tr>
       </tbody>
     </table>
 
     <p v-else>Loading students...</p>
+
+    <!-- Assign Classroom Modal -->
+    <AssignClassroom 
+      ref="assignModal" 
+      :studentId="selectedStudentId" 
+      @assigned="fetchStudents"
+    />
   </div>
 </template>
 
@@ -47,6 +52,8 @@ import AssignClassroom from './AssignClassroom.vue';
 import Swal from 'sweetalert2';
 
 const students = ref([]);
+const selectedStudentId = ref(null);
+const assignModal = ref(null);
 
 // Fetch all students
 const fetchStudents = async () => {
@@ -58,13 +65,10 @@ const fetchStudents = async () => {
   }
 };
 
-// Toggle role to Teacher
+// Assign Role (toggle)
 const toggleRole = async (student) => {
   try {
-    await api.put(`/admin/users/${student.id}/toggle-role`, {
-      role: 'teacher'
-    });
-
+    await api.put(`/admin/users/${student.id}/toggle-role`, { role: 'teacher' });
     Swal.fire({
       icon: 'success',
       title: 'Role Updated',
@@ -72,7 +76,6 @@ const toggleRole = async (student) => {
       timer: 2000,
       showConfirmButton: false
     });
-
     fetchStudents();
   } catch (err) {
     console.error(err);
@@ -98,7 +101,6 @@ const deleteStudent = async (student) => {
   if (confirmResult.isConfirmed) {
     try {
       await api.delete(`/admin/students/${student.id}`);
-
       Swal.fire({
         icon: 'success',
         title: 'Deleted',
@@ -106,7 +108,6 @@ const deleteStudent = async (student) => {
         timer: 2000,
         showConfirmButton: false
       });
-
       fetchStudents();
     } catch (err) {
       console.error(err);
@@ -119,9 +120,13 @@ const deleteStudent = async (student) => {
   }
 };
 
-onMounted(() => {
-  fetchStudents();
-});
+// Open Assign Classroom modal for selected student
+const openAssignModal = (studentId) => {
+  selectedStudentId.value = studentId;
+  assignModal.value.openModal();
+};
+
+onMounted(fetchStudents);
 </script>
 
 <style scoped>
@@ -130,23 +135,19 @@ onMounted(() => {
   border-collapse: collapse;
   margin-top: 10px;
 }
-
 .students-table th,
 .students-table td {
   border: 1px solid #ddd;
   padding: 8px;
 }
-
 .students-table th {
   background-color: #f4f4f4;
 }
-
 button {
   padding: 6px 12px;
   cursor: pointer;
   margin-right: 5px;
 }
-
 p {
   margin-top: 10px;
   font-style: italic;

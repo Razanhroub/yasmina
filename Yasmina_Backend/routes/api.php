@@ -22,7 +22,7 @@ use App\Http\Controllers\TeacherController;
     Route::middleware(['auth:sanctum', 'role:admin','token.expired'])
         ->prefix('admin')
         ->group(function () {
-            // Classrooms
+        // Classrooms
             Route::get('classrooms', [ClassroomController::class, 'index']);
             Route::post('classrooms', [ClassroomController::class, 'store']);
             Route::put('classrooms/{classroom}', [ClassroomController::class, 'update']);
@@ -39,19 +39,33 @@ use App\Http\Controllers\TeacherController;
 
             // Teachers
             Route::get('teachers', [TeacherController::class, 'index']);
-            Route::get('teachers/{teacher}', [TeacherController::class, 'show']);
             Route::post('teachers', [TeacherController::class, 'store']);
             Route::put('teachers/{teacher}', [TeacherController::class, 'update']);
             Route::delete('teachers/{teacher}', [TeacherController::class, 'destroy']);
     });
+
     Route::middleware(['auth:sanctum', 'role:student', 'token.expired'])
         ->prefix('student')
         ->group(function () {
 
             Route::get('profile', [StudentController::class, 'profile']);
             Route::put('profile', [StudentController::class, 'updateProfile']);
+            
 
-        });
+    });
+
+    Route::middleware(['auth:sanctum', 'role:teacher', 'token.expired'])
+        ->prefix('teacher')
+        ->group(function () {
+
+            Route::get('classrooms', [ClassroomController::class, 'index']);
+            Route::put('classrooms/{classroom}', [ClassroomController::class, 'update']);
+            Route::post('students', [StudentController::class, 'store']);
+            Route::delete('students/{student}', [StudentController::class, 'destroyByUser']); 
+
+
+    });
+
 
 
 

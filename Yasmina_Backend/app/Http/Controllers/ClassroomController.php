@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Classroom;
 use App\Http\Requests\ClassroomRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ClassroomController extends Controller
 {
@@ -15,19 +16,22 @@ class ClassroomController extends Controller
     public function index()
     {
         $user = auth()->user();
+    //     Log::info('Authenticated user in ClassroomController@index:', [
+    //     'user' => $user ? $user->toArray() : null
+    // ]);
 
-        if ($user->hasRole('admin')) {
-            $classrooms = Classroom::with('teacher', 'students')->get();
+       if ($user->hasRole('admin')) {
+        $classrooms = Classroom::with(['teacher', 'students.user'])->get();
         } elseif ($user->hasRole('teacher')) {
             $classrooms = Classroom::where('teacher_id', $user->id)
-                                ->with('students')
-                                ->get();
+                                    ->with(['students.user'])
+                                    ->get();
         } else {
             abort(403, 'Unauthorized');
         }
 
         return response()->json($classrooms, 200);
-    }
+    }   
 
     public function store(ClassroomRequest $request)
     {
@@ -69,12 +73,13 @@ class ClassroomController extends Controller
             'message' => 'Classroom deleted successfully.'
         ], 200);
     }
+
      public function available()
     {
         $this->authorize('viewAny', Classroom::class); 
 
         $classrooms = Classroom::whereNull('teacher_id')->get(['id', 'name']);
         
-        return response()->json($classrooms);
+        return response()->json($classrooms, 200);
     }
 }

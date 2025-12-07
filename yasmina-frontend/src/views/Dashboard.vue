@@ -5,7 +5,6 @@
 
     <!-- Dashboard content -->
     <div class="container">
-      <h2>Dashboard</h2>
 
       <div v-if="user">
         <!-- Render the correct dashboard based on the route -->

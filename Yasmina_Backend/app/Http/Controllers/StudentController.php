@@ -6,6 +6,7 @@ use App\Models\Classroom;
 use App\Models\Student;
 use App\Models\User;
 use App\Http\Requests\StudentRequest;
+use App\Http\Requests\UpdateStudentProfileRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;   
 use Illuminate\Support\Facades\Validator;
@@ -24,9 +25,8 @@ class StudentController extends Controller
      * Display a listing of students.
      */
     public function index()
-{
-    $user = auth()->user();
-
+    {
+        $user = auth()->user();
     if ($user->hasRole('admin')) {
         $students = User::role('student')
             ->with(['student.classroom'])
@@ -66,7 +66,6 @@ class StudentController extends Controller
      */
     public function store(StudentRequest $request)
     {
-        $this->authorize('create', Student::class);
 
         $data = $request->validated();
 
@@ -87,14 +86,15 @@ class StudentController extends Controller
 
         return response()->json($student, 201);
     }
+    
 
-
+    
+    // Assign Teacher role
     public function toggleRole(User $user)
     {
-        $this->authorize('update', $user);
+        
         $user->syncRoles([]);
 
-        // Assign Teacher role
         $user->assignRole('teacher');
 
         return response()->json([
@@ -104,179 +104,128 @@ class StudentController extends Controller
     }
 
 
-
-
-    /**
-     * Delete a student (soft delete)
-        */
     public function destroyByUser($userId)
-    {
-        $user = User::findOrFail($userId);
-        $student = $user->student;     
-        $student->delete();
-        $user->delete();
+        {
+            $user = User::findOrFail($userId);
+            $student = $user->student;     
+            $student->delete();
+            $user->delete();
 
-        return response()->json(['message' => 'Student deleted successfully']);
+            return response()->json([
+            'status' => 200,
+            'message' => 'Student deleted successfully'
+        ]);
     }
 
     public function profile(Request $request)
-{
-    $user = $request->user();
+        {
+            $user = $request->user();
 
-    // Ensure the user has a student record
-    if (!$user->student) {
-        // Create a student record if not exists
-        $student = $user->student()->create([
-            'birth_of_date' => null,
-            'country' => null,
-            'class_id' => null,
-        ]);
-    } else {
-        $student = $user->student;
-    }
-
-    // Load related user and classroom with teacher
-    $student->load([
-        'user',
-        'classroom.teacher' // load classroom and its teacher
-    ]);
-
-    return response()->json([
-        'status' => 200,
-        'message' => 'Profile retrieved successfully',
-        'data' => $student
-    ]);
-}
-
-
-
-
-    public function updateProfile(Request $request)
-    {
-        //fixing the issue of student profile update
-        $student = $request->user()->student;
-
-        if (!$student) {
-            return response()->json(['message' => 'Student profile not found'], 404);
-        }
-
-        $this->authorize('update', $student); // Use policy
-
-        $userUpdate = [];
-        $studentUpdate = [];
-        $errors = [];
-
-        // Name validation
-        if ($request->has('name') && $request->name !== $student->user->name) {
-            if (strlen($request->name) < 5) {
-                $errors['name'][] = 'Name must be at least 5 characters';
+            // Ensure the user has a student record
+            if (!$user->student) {
+                // Create a student record if not exists
+                $student = $user->student()->create([
+                    'birth_of_date' => null,
+                    'country' => null,
+                    'class_id' => null,
+                ]);
             } else {
-                $userUpdate['name'] = $request->name;
-            }
-        }
-
-        // Email validation (only if changed)
-        if ($request->has('email') && $request->email !== $student->user->email) {
-            if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
-                $errors['email'][] = 'Email is not valid';
-            } elseif (\App\Models\User::where('email', $request->email)
-                ->where('id', '!=', $student->user->id)
-                ->exists()) {
-                $errors['email'][] = 'Email is already taken';
-            } else {
-                $userUpdate['email'] = $request->email;
-            }
-        }
-
-        // Password validation (optional)
-        if ($request->filled('password')) {
-            $password = $request->password;
-            $password_confirmation = $request->password_confirmation;
-
-            if (strlen($password) < 8) {
-                $errors['password'][] = 'Password must be at least 8 characters';
-            }
-            if (!preg_match('/[a-z]/', $password)) {
-                $errors['password'][] = 'Password must contain at least one lowercase letter';
-            }
-            if (!preg_match('/[A-Z]/', $password)) {
-                $errors['password'][] = 'Password must contain at least one uppercase letter';
-            }
-            if (!preg_match('/[0-9]/', $password)) {
-                $errors['password'][] = 'Password must contain at least one number';
-            }
-            if (!preg_match('/[@$!%*#?&]/', $password)) {
-                $errors['password'][] = 'Password must contain at least one special character';
-            }
-            if ($password !== $password_confirmation) {
-                $errors['password_confirmation'][] = 'Password confirmation does not match';
+                $student = $user->student;
             }
 
-            if (!isset($errors['password']) && !isset($errors['password_confirmation'])) {
-                $userUpdate['password'] = Hash::make($password);
+            // Load related user and classroom with teacher
+            $student->load([
+                'user',
+                'classroom.teacher' // load classroom and its teacher
+            ]);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Profile retrieved successfully',
+                'data' => $student
+            ]);
+        }
+
+    public function updateProfile(UpdateStudentProfileRequest $request)
+        {
+            $student = $request->user()->student;
+
+            if (!$student) {
+                return response()->json(['message' => 'Student profile not found'], 404);
+            }
+
+            $this->authorize('update', $student); // Keep policy check
+
+            $data = $request->validated();
+
+            // Hash password if provided
+            if (!empty($data['password'])) {
+                $data['password'] = Hash::make($data['password']);
+            }
+
+            $userData = array_intersect_key($data, ['name' => '', 'email' => '', 'password' => '']);
+            $studentData = array_diff_key($data, $userData);
+
+            // Update
+            if (!empty($userData)) {
+                $student->user->update($userData);
+            }
+            if (!empty($studentData)) {
+                $student->update($studentData);
+            }
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Profile updated successfully',
+                'data' => $student->load('user', 'classroom.teacher')
+            ]);
+        }
+
+    public function assignClassroom(Request $request, $studentId)
+        {
+            // Validate the incoming request
+            $validator = Validator::make($request->all(), [
+                'class_id' => 'required|exists:classrooms,id',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            try {
+                // Find the student record by student_id (which references users table)
+                $student = Student::where('student_id', $studentId)->first();
+
+                if (!$student) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Student not found'
+                    ], 404);
+                }
+
+                // Update the classroom assignment
+                $student->class_id = $request->class_id;
+                $student->save();
+
+                // Load relationships for response
+                $student->load(['user', 'classroom']);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Student assigned to classroom successfully',
+                    'data' => $student
+                ], 200);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to assign classroom',
+                    'error' => $e->getMessage()
+                ], 500);
             }
         }
-
-        // Birth date and country
-        if ($request->has('birth_of_date') && $request->birth_of_date !== $student->birth_of_date) {
-            $studentUpdate['birth_of_date'] = $request->birth_of_date;
-        }
-
-        if ($request->has('country') && $request->country !== $student->country) {
-            $studentUpdate['country'] = $request->country;
-        }
-
-        // Class ID
-        if ($request->has('class_id') && $request->class_id != $student->class_id) {
-            $studentUpdate['class_id'] = $request->class_id;
-        }
-
-        // Return errors if any
-        if (!empty($errors)) {
-            return response()->json(['errors' => $errors], 422);
-        }
-
-        // Apply updates
-        if (!empty($userUpdate)) {
-            $student->user->update($userUpdate);
-        }
-
-        if (!empty($studentUpdate)) {
-            $student->update($studentUpdate);
-        }
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Profile updated successfully',
-            'data' => $student->load('user', 'classroom.teacher')
-        ]);
-    }
-
-      public function assignClassroom(Request $request, $userId)
-{
-    $student = Student::where('student_id', $userId)->firstOrFail();
-        $this->authorize('update', $student); // policy check
-        
-        $request->validate([
-            'class_id' => 'required|exists:classrooms,id',
-        ]);
-
-        $classroom = Classroom::findOrFail($request->class_id);
-
-        // Assign student to classroom
-        $student->class_id = $classroom->id;
-        $student->save();
-
-        return response()->json([
-            'status' => 200,
-            'message' => "Student assigned to classroom {$classroom->name} successfully",
-            'data' => [
-                'student_id' => $student->id,
-                'classroom_id' => $classroom->id,
-                'classroom_name' => $classroom->name
-            ]
-        ]);
-    }
-
-
 }
