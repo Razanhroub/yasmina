@@ -59,6 +59,15 @@ DB_PASSWORD=your_db_password
     Email: razan.b.alhroub@gmail.com
     Password: Raz_2001
     ***********************
+    and one Teacher :
+    Email: teacher@example.com
+    Password: Password
+    2Student:
+    Email: student1@example.com
+    Password: Password
+    Email: student2@example.com
+    Password: Password
+
 11.Sanctum & Spatie Roles & Permissions Setup
 
 composer require laravel/sanctum
