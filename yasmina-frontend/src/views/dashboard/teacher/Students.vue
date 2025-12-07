@@ -11,7 +11,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="student in students" :key="student.id">
+        <tr v-for="student in localStudents" :key="student.id">
           <td>{{ student.name || 'N/A' }}</td>
           <td>{{ formatDate(student.birth_of_date) || 'N/A' }}</td>
           <td>{{ student.country || 'N/A' }}</td>
@@ -32,7 +32,7 @@
             </button>
           </td>
         </tr>
-        <tr v-if="students.length === 0">
+        <tr v-if="localStudents.length === 0">
           <td colspan="5" class="no-students">No students found</td>
         </tr>
       </tbody>
@@ -54,12 +54,25 @@ export default {
     students: {
       type: Array,
       required: true
+    },
+    classroomId: {
+      type: Number,
+      required: false
     }
   },
   data() {
     return {
-      deletingStudentId: null
+      deletingStudentId: null,
+      localStudents: [...this.students] // Create local copy to avoid prop mutation
     };
+  },
+  watch: {
+    students: {
+      handler(newStudents) {
+        this.localStudents = [...newStudents];
+      },
+      deep: true
+    }
   },
   methods: {
     formatDate(dateStr) {
@@ -68,7 +81,11 @@ export default {
       return date.toLocaleDateString();
     },
     handleStudentDeleted(deletedId) {
-      this.students = this.students.filter(s => s.id !== deletedId);
+      // Update local list immediately for instant UI feedback
+      this.localStudents = this.localStudents.filter(s => s.id !== deletedId);
+      this.deletingStudentId = null;
+      
+      // Notify parent to update main data
       this.$emit('student-deleted', deletedId);
     }
   }

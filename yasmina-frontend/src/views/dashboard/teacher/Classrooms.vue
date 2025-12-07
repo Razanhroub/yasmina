@@ -45,9 +45,10 @@
     />
 
     <Students
-      v-if="viewClassroomStudents?.length"
+      v-if="viewClassroomStudents"
       :students="viewClassroomStudents"
-      @close="viewClassroomStudents = null"
+      :classroomId="viewClassroomId"
+      @close="closeViewModal"
       @student-deleted="handleStudentDeleted"
     />
   </div>
@@ -67,6 +68,7 @@ export default {
       classrooms: [],
       selectedClassroom: null,
       viewClassroomStudents: null,
+      viewClassroomId: null,
       createFormId: null
     };
   },
@@ -96,6 +98,7 @@ export default {
     },
     openViewModal(classroom) {
       if (!classroom?.students) return;
+      this.viewClassroomId = classroom.id;
       this.viewClassroomStudents = classroom.students
         .map(s => ({
           id: s.user?.id,
@@ -104,17 +107,42 @@ export default {
           name: s.user?.name || 'N/A',
           email: s.user?.email || 'N/A',
         }))
-        .filter(s => s.id); // ensure valid ID
+        .filter(s => s.id);
+    },
+    closeViewModal() {
+      this.viewClassroomStudents = null;
+      this.viewClassroomId = null;
     },
     toggleCreateForm(classroomId) {
       this.createFormId = this.createFormId === classroomId ? null : classroomId;
     },
-    handleStudentCreated() {
+    handleStudentCreated(newStudent) {
       this.createFormId = null;
-      this.fetchClassrooms();
+      
+      // Update the specific classroom without refetching all
+      const classroom = this.classrooms.find(c => c.id === newStudent.class_id);
+      if (classroom) {
+        if (!classroom.students) {
+          classroom.students = [];
+        }
+        classroom.students.push(newStudent);
+        // Trigger reactivity
+        this.classrooms = [...this.classrooms];
+      }
     },
-    async handleStudentDeleted(deletedId) {
-      await this.fetchClassrooms();
+    handleStudentDeleted(deletedId) {
+      // Update all classrooms to remove the deleted student
+      this.classrooms = this.classrooms.map(classroom => {
+        if (classroom.students) {
+          return {
+            ...classroom,
+            students: classroom.students.filter(s => s.user?.id !== deletedId)
+          };
+        }
+        return classroom;
+      });
+
+      // Update view modal if open
       if (this.viewClassroomStudents) {
         this.viewClassroomStudents = this.viewClassroomStudents.filter(s => s.id !== deletedId);
       }
@@ -122,4 +150,3 @@ export default {
   }
 }
 </script>
-

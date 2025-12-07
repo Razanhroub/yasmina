@@ -33,7 +33,9 @@
         <input type="text" v-model="form.country" placeholder="Enter country" />
       </div>
 
-      <button type="submit" class="submit-btn">Create Student</button>
+      <button type="submit" class="submit-btn" :disabled="isSubmitting">
+        {{ isSubmitting ? 'Creating...' : 'Create Student' }}
+      </button>
     </form>
   </div>
 </template>
@@ -52,6 +54,7 @@ export default {
   },
   data() {
     return {
+      isSubmitting: false,
       form: {
         name: '',
         email: '',
@@ -85,13 +88,25 @@ export default {
         return;
       }
 
+      this.isSubmitting = true;
       try {
-        await api.post('/teacher/students', this.form);
-        Swal.fire('Success', 'Student created successfully!', 'success');
+        const response = await api.post('/teacher/students', this.form);
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Student created successfully!',
+          timer: 1500,
+          showConfirmButton: false
+        });
+        
         this.resetForm();
-        this.$emit('created'); // notify parent to refresh classrooms
+        
+        // Pass the created student data back to parent
+        this.$emit('created', response.data);
       } catch (err) {
         Swal.fire('Error', err.response?.data?.message || 'Failed to create student', 'error');
+      } finally {
+        this.isSubmitting = false;
       }
     }
   }
