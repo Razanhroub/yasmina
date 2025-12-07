@@ -105,17 +105,22 @@ class StudentController extends Controller
 
 
     public function destroyByUser($userId)
-        {
-            $user = User::findOrFail($userId);
-            $student = $user->student;     
-            $student->delete();
-            $user->delete();
+    {
+        $user = User::findOrFail($userId);
+        $student = $user->student;
 
-            return response()->json([
+        if ($student) {
+            $student->delete();
+        }
+
+        $user->delete();
+
+        return response()->json([
             'status' => 200,
             'message' => 'Student deleted successfully'
         ]);
     }
+
 
     public function profile(Request $request)
         {
