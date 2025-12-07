@@ -102,44 +102,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.create-classroom {
-  margin-bottom: 20px;
-}
 
-.toggle-btn {
-  padding: 6px 12px;
-  margin-bottom: 10px;
-  cursor: pointer;
-}
-
-.classroom-form {
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 5px;
-  background: #f9f9f9;
-}
-
-.form-group {
-  margin-bottom: 10px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 4px;
-}
-
-.form-group input,
-.form-group textarea,
-.form-group select {
-  width: 100%;
-  padding: 6px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.submit-btn {
-  padding: 6px 12px;
-  cursor: pointer;
-}
-</style>

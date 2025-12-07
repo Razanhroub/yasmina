@@ -83,31 +83,4 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.module-page {
-  padding: 20px;
-}
 
-.classroom-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.classroom-table th,
-.classroom-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
-}
-
-.classroom-table th {
-  background-color: #f0f0f0;
-}
-
-button {
-  margin-right: 5px;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-</style>

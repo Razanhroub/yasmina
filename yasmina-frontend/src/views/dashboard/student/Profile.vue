@@ -21,7 +21,7 @@
     </div>
 
     <!-- Profile Form -->
-    <form @submit.prevent="submitUpdate">
+    <form class="profile-form" @submit.prevent="submitUpdate">
       <!-- Name -->
       <div>
         <label>Name:</label>
@@ -176,11 +176,3 @@ const submitUpdate = async () => {
 };
 </script>
 
-<style scoped>
-form div { margin-bottom: 10px; }
-label { display: block; margin-bottom: 4px; }
-input[readonly] { background-color: #f5f5f5; border: 1px solid #ccc; }
-input { padding: 6px; width: 100%; box-sizing: border-box; }
-button { padding: 8px 16px; margin-right: 10px; cursor: pointer; }
-.error { color: red; font-size: 0.85em; margin-top: 2px; display: block; }
-</style>

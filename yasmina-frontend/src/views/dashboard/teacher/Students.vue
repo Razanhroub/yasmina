@@ -70,7 +70,6 @@ export default {
     handleStudentDeleted(deletedId) {
       this.students = this.students.filter(s => s.id !== deletedId);
       this.$emit('student-deleted', deletedId);
-      this.deletingStudentId = null;
     }
   }
 };

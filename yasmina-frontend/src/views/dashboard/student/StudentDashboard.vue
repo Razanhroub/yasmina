@@ -30,18 +30,4 @@ export default {
 };
 </script>
 
-<style scoped>
-.student-dashboard {
-  padding: 20px;
-}
 
-.nav-buttons button {
-  margin-right: 10px;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.student-content {
-  margin-top: 20px;
-}
-</style>

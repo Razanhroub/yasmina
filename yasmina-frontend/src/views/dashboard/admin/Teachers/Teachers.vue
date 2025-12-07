@@ -72,30 +72,3 @@ onMounted(() => {
   fetchTeachers();
 });
 </script>
-
-<style scoped>
-.module-page { padding: 20px; }
-
-.teacher-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.teacher-table th,
-.teacher-table td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: left;
-}
-
-.teacher-table th {
-  background-color: #f0f0f0;
-}
-
-button {
-  margin-right: 5px;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-</style>

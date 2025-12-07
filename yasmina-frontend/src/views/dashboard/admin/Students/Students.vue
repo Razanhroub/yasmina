@@ -128,28 +128,3 @@ const openAssignModal = (studentId) => {
 
 onMounted(fetchStudents);
 </script>
-
-<style scoped>
-.students-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-.students-table th,
-.students-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-}
-.students-table th {
-  background-color: #f4f4f4;
-}
-button {
-  padding: 6px 12px;
-  cursor: pointer;
-  margin-right: 5px;
-}
-p {
-  margin-top: 10px;
-  font-style: italic;
-}
-</style>

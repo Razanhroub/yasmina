@@ -20,8 +20,7 @@ export default {
   props: {
     student: {
       type: Object,
-      required: true,
-      default: () => ({ name: 'Unknown' })
+      required: true
     }
   },
   methods: {

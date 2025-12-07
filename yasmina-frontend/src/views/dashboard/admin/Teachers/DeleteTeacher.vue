@@ -49,16 +49,4 @@ const confirmDelete = async () => {
 };
 </script>
 
-<style scoped>
-.delete-btn {
-  padding: 6px 12px;
-  cursor: pointer;
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 4px;
-}
-.delete-btn:hover {
-  background-color: #d32f2f;
-}
-</style>
+

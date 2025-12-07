@@ -14,15 +14,3 @@ const props = defineProps({
 });
 </script>
 
-<style scoped>
-.classroom-card {
-  border: 1px solid #ccc;
-  padding: 15px;
-  margin-top: 10px;
-  border-radius: 8px;
-  background: #f9f9f9;
-}
-.classroom-card h3 {
-  margin-bottom: 8px;
-}
-</style>

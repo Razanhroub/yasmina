@@ -95,35 +95,3 @@ const assignClassroom = async () => {
 };
 </script>
 
-<style scoped>
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-.modal-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 6px;
-  width: 300px;
-}
-.modal-actions {
-  margin-top: 15px;
-  display: flex;
-  justify-content: flex-end;
-}
-.modal-actions button {
-  margin-left: 10px;
-}
-.modal-actions button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-</style>
