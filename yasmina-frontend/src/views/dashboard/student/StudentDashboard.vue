@@ -2,10 +2,7 @@
   <div class="student-dashboard">
     <h2>Student Dashboard</h2>
 
-    <!-- Navigation Buttons -->
-    <div class="nav-buttons">
-      <button @click="currentView = 'profile'">My Profile</button>
-    </div>
+  
 
     <!-- Render Components -->
     <div class="student-content">
